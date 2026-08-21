@@ -1,6 +1,6 @@
 # kwin-niri-shaders-port
 
-Ports of the experimental [Niri](https://github.com/YaLTeR/niri) GLSL window
+Ports of the experimental [Niri](https://github.com/liixini/shaders) GLSL window
 open/close shaders to **KDE KWin 6 (Plasma 6)** scripted effects.
 
 - **`ripple`** — hand-written reference port (straight-alpha style).
