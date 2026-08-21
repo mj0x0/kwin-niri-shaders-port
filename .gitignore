@@ -1,0 +1,6 @@
+# Build artifacts (regenerate with: python3 build/generate.py --package)
+dist/
+
+# Local demo encodes (the published demo lives as a GitHub attachment)
+demo.mp4
+demo.webm
