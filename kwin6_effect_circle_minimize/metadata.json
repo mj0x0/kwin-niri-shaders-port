@@ -1,0 +1,26 @@
+{
+  "KPackageStructure": "KWin/Effect",
+  "KPlugin": {
+    "Name": "Circle Minimize [Niri Port]",
+    "Description": "Ported Niri 'circle' minimize/unminimize animation.",
+    "Icon": "preferences-system-windows-effect-circle",
+    "Category": "Minimize Animation",
+    "Authors": [
+      { "Name": "liixini" },
+      { "Name": "mj0x0" }
+    ],
+    "Id": "kwin6_effect_circle_minimize",
+    "License": "MIT",
+    "Version": "1.0",
+    "EnabledByDefault": false,
+    "ServiceTypes": [
+      "KWin/Effect"
+    ]
+  },
+  "X-KDE-ConfigModule": "kcm_kwin4_genericscripted",
+  "X-KDE-Ordering": "60",
+  "X-KDE-PluginKeyword": "kwin6_effect_circle_minimize",
+  "X-KWin-Exclusive-Category": "minimize",
+  "X-Plasma-API": "javascript",
+  "X-Plasma-MainScript": "code/main.js"
+}

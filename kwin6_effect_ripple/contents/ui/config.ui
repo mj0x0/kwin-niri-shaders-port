@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- SPDX-License-Identifier: MIT -->
+
+<ui version="4.0">
+    <class>RippleConfigForm</class>
+    <widget class="QWidget" name="RippleConfigForm">
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>562</width>
+                <height>200</height>
+            </rect>
+        </property>
+        <layout class="QGridLayout" name="gridLayout">
+            <item row="0" column="0">
+                <widget class="QLabel" name="label_duration">
+                    <property name="text">
+                        <string>Animation Time [ms]</string>
+                    </property>
+                    <property name="alignment">
+                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                </widget>
+            </item>
+            <item row="0" column="1">
+                <widget class="QSpinBox" name="kcfg_Duration">
+                    <property name="minimum">
+                        <number>100</number>
+                    </property>
+                    <property name="maximum">
+                        <number>9999</number>
+                    </property>
+                    <property name="singleStep">
+                        <number>50</number>
+                    </property>
+                </widget>
+            </item>
+            <item row="1" column="0">
+                <widget class="QLabel" name="label_amplitude">
+                    <property name="text">
+                        <string>Amplitude</string>
+                    </property>
+                    <property name="alignment">
+                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                </widget>
+            </item>
+            <item row="1" column="1">
+                <widget class="QDoubleSpinBox" name="kcfg_Amplitude">
+                    <property name="minimum">
+                        <double>0.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                        <double>500.000000000000000</double>
+                    </property>
+                    <property name="singleStep">
+                        <double>5.0</double>
+                    </property>
+                </widget>
+            </item>
+            <item row="2" column="0">
+                <widget class="QLabel" name="label_speed">
+                    <property name="text">
+                        <string>Speed</string>
+                    </property>
+                    <property name="alignment">
+                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                </widget>
+            </item>
+            <item row="2" column="1">
+                <widget class="QDoubleSpinBox" name="kcfg_Speed">
+                    <property name="minimum">
+                        <double>0.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                        <double>300.000000000000000</double>
+                    </property>
+                    <property name="singleStep">
+                        <double>5.0</double>
+                    </property>
+                </widget>
+            </item>
+        </layout>
+    </widget>
+    <resources />
+    <connections />
+</ui>

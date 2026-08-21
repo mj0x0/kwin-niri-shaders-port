@@ -1,0 +1,26 @@
+{
+  "KPackageStructure": "KWin/Effect",
+  "KPlugin": {
+    "Name": "Wave Warp [Niri Port]",
+    "Description": "Ported Niri 'wave-warp' window animation.",
+    "Icon": "preferences-system-windows-effect-wave-warp",
+    "Category": "Window Open/Close Animation",
+    "Authors": [
+      { "Name": "liixini" },
+      { "Name": "mj0x0" }
+    ],
+    "Id": "kwin6_effect_wave_warp",
+    "License": "MIT",
+    "Version": "1.0",
+    "EnabledByDefault": false,
+    "ServiceTypes": [
+      "KWin/Effect"
+    ]
+  },
+  "X-KDE-ConfigModule": "kcm_kwin4_genericscripted",
+  "X-KDE-Ordering": "60",
+  "X-KDE-PluginKeyword": "kwin6_effect_wave_warp",
+  "X-KWin-Exclusive-Category": "toplevel-open-close-animation",
+  "X-Plasma-API": "javascript",
+  "X-Plasma-MainScript": "code/main.js"
+}
