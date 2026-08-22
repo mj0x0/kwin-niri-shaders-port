@@ -91,13 +91,15 @@ The essentials in `metadata.json`:
   `smoke` / `dissolve` / `ink-splash` / `heat-melt` (multi-octave noise) are
   unoptimized (per the upstream Niri README).
 
-## Minimize variants (curated)
+## Minimize variants
 
-A curated subset also ships as **minimize/unminimize** effects
-(`kwin6_effect_<name>_minimize`): `snap`, `circle`, `directional`,
-`directional-wipe`, `bounce`, `dissolve`, `smoke`, `voronoi-shatter`, `pixelate`
-— the ones that read as a window "leaving" and "returning". The **shaders are
-identical**; only `main.js` and `metadata.json` differ.
+Some effects also ship as minimize/unminimize (`kwin6_effect_<name>_minimize`):
+`snap`, `circle`, `directional`, `directional-wipe`, `bounce`, `dissolve`,
+`smoke`, `voronoi-shatter`, `pixelate`. Same shaders, different signals —
+minimize plays the close animation, unminimize the open one. They appear in the
+**Minimize** slot under System Settings → Animations.
+Note: these animate **in place**; they do not fly toward the taskbar icon (that
+needs `window.iconGeometry`, which none of the Niri shaders use).
 
 Generate them with:
 
@@ -105,26 +107,12 @@ Generate them with:
 python3 build/generate.py --role minimize
 ```
 
-The mapping is: **minimized → the close body** (`uForOpening = 0`),
-**unminimized → the open body** (`uForOpening = 1`). They appear under *System
-Settings → Animations* in the **Minimize** slot (`X-KWin-Exclusive-Category:
-minimize`).
-
 > **KWin 6 API note / test first.** Unlike open/close, KWin 6 does **not** expose
 > `effects.windowMinimized` / `windowUnminimized`. The current hook is the
 > per-window `EffectWindow.minimizedChanged` signal + the `window.minimized`
 > bool, so `main.js` attaches a listener to every window (existing ones via
 > `effects.stackingOrder`, new ones via `windowAdded`). This path is less
-> battle-tested than open/close — **install one variant and confirm it fires
-> before trusting the whole set.**
-
-Note: these animate **in place**; they do not fly toward the taskbar icon (that
-needs `window.iconGeometry`, which none of the Niri shaders use).
-
-Maximize is intentionally **not** targeted — it is a geometry change, not an
-appear/disappear, so the alpha-reveal effects would wrongly hide the window;
-only pure-warp shaders could serve as a wobble, and only with the alpha fade
-removed.
+> battle-tested than open/close. Please report issues. 
 
 ## glass-warp — spring handling
 
