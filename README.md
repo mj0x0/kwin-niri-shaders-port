@@ -101,11 +101,6 @@ minimize plays the close animation, unminimize the open one. They appear in the
 Note: these animate **in place**; they do not fly toward the taskbar icon (that
 needs `window.iconGeometry`, which none of the Niri shaders use).
 
-Generate them with:
-
-```bash
-python3 build/generate.py --role minimize
-```
 
 > **KWin 6 API note / test first.** Unlike open/close, KWin 6 does **not** expose
 > `effects.windowMinimized` / `windowUnminimized`. The current hook is the
