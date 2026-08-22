@@ -6,7 +6,7 @@
   <kcfgfile name="" />
   <group name="">
     <entry name="Duration" type="UInt">
-      <default>500</default>
+      <default>600</default>
     </entry>
   </group>
 </kcfg>
