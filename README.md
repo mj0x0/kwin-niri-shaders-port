@@ -12,77 +12,6 @@ https://github.com/user-attachments/assets/1ec9a63f-3fc7-451b-abcb-5ef6fa431de9
   per-direction easing + duration (see below).
 - A curated set of **minimize** variants.
 
-## How the port works
-
-Niri and KWin both let a fragment shader distort a window during its open/close
-animation, but they expose different interfaces:
-
-| Concept | Niri | KWin 6 |
-| --- | --- | --- |
-| Progress | `niri_clamped_progress` (already eased) | `uProgress`, linear 0→1; ease in-shader |
-| Direction | separate `open.glsl` / `close.glsl` | one shader, branch on `uForOpening` |
-| Window texture | `niri_tex` + `niri_geo_to_tex` | `sampler` (geo space == tex space) |
-| UV | `coords_geo.xy` (top-left origin) | `texcoord0` (bottom-left; flip Y) |
-| Random seed | `niri_random_seed` | custom `uSeed` uniform set per animation |
-| Sample color | `texture2D(niri_tex, …)` | premultiplied `sampler` (both use premul) |
-| Output | `return color;` (premultiplied) | `fragColor` (premultiplied) + color mgmt |
-| Timing/curve | `config` (`duration-ms`, `curve`) | `metadata.json` + `config/main.xml` + `animate()` |
-
-### The compatibility shim (batch ports)
-
-The audit that made batch porting possible: across **all** the Niri shaders, only
-four Niri built-ins are ever used — `niri_clamped_progress`, `niri_random_seed`,
-`niri_tex`, `niri_geo_to_tex` — plus `texture2D`. No `gl_FragCoord`, no second
-texture, no external image samplers.
-
-So `build/generate.py` prepends a small shim that emulates those four built-ins,
-then drops each Niri `open_color`/`close_color` body in **verbatim**. The key
-realization: both Niri and KWin store window textures in **premultiplied alpha**,
-so a Niri body that does `return win * reveal;` already produces exactly the
-premultiplied color KWin wants in `fragColor` — no straight-alpha rewrite needed.
-
-`niri_clamped_progress` is reproduced as `easeOutCubic(uProgress)` (every ported
-effect's Niri `config` uses `curve "ease-out-cubic"`). `niri_geo_to_tex` is a
-constant matrix that just flips Y to bridge the two origin conventions.
-
-Open and close are combined into one shader by branching on `uForOpening`. Since
-no open/close pair defines a *differing* shared helper and none has close-only
-helpers, the merge rule is simply: **include all of `open.glsl`, then append only
-the `close_color` function from `close.glsl`.**
-
-### Package layout (what KWin expects)
-
-```
-kwin6_effect_<name>/
-├── metadata.json                 # KPackageStructure: KWin/Effect + KPlugin block
-└── contents/
-    ├── code/main.js              # X-Plasma-MainScript: window filtering + animate()
-    ├── shaders/<name>.frag       # GLES / legacy fragment shader
-    ├── shaders/<name>_core.frag  # desktop GL core profile (auto-selected by KWin)
-    ├── config/main.xml           # KConfigXT schema (Duration)
-    └── ui/config.ui              # settings form shown in System Settings
-```
-
-The essentials in `metadata.json`:
-
-- `"KPackageStructure": "KWin/Effect"` — identifies a KWin effect package.
-- `"X-Plasma-API": "javascript"` + `"X-Plasma-MainScript": "code/main.js"` —
-  make it a *scripted* effect.
-- `"X-KWin-Exclusive-Category": "toplevel-open-close-animation"` — groups it with
-  the other open/close animations so only one runs at a time.
-- `"X-KDE-ConfigModule": "kcm_kwin4_genericscripted"` — generic config UI driven
-  by `config/main.xml` + `ui/config.ui`.
-
-## Regenerating
-
-```bash
-python3 build/generate.py
-```
-
-Reads Niri effects from `$NIRI_SHADERS` (default `~/Downloads/shaders`) and writes
-the `kwin6_effect_*` packages next to this README. All generated shaders are
-compile-checked with `glslangValidator` and all `main.js` with `node --check`.
-
 ## Install
 
 ```bash
@@ -116,6 +45,40 @@ Physical / particle: `bounce`, `heat-melt`, `ink-splash`, `inkwell-drop`,
 `smoke`, `snap`.
 
 Stylized: `glitch`, `overexposure`, `static-fade`.
+
+## How the port works
+
+Niri and KWin both store window textures in **premultiplied alpha**, so a Niri
+shader body works in KWin as-is — `return win * reveal;` is already the colour
+KWin wants.
+
+A shim in `build/generate.py` bridges the rest: it supplies the four Niri
+built-ins the shaders use (`niri_clamped_progress`, `niri_random_seed`,
+`niri_tex`, `niri_geo_to_tex`), flips the Y axis, and merges `open.glsl` and
+`close.glsl` into one shader that branches on `uForOpening`.
+
+### Package layout (what KWin expects)
+
+```
+kwin6_effect_<name>/
+├── metadata.json                 # KPackageStructure: KWin/Effect + KPlugin block
+└── contents/
+    ├── code/main.js              # X-Plasma-MainScript: window filtering + animate()
+    ├── shaders/<name>.frag       # GLES / legacy fragment shader
+    ├── shaders/<name>_core.frag  # desktop GL core profile (auto-selected by KWin)
+    ├── config/main.xml           # KConfigXT schema (Duration)
+    └── ui/config.ui              # settings form shown in System Settings
+```
+
+The essentials in `metadata.json`:
+
+- `"KPackageStructure": "KWin/Effect"` — identifies a KWin effect package.
+- `"X-Plasma-API": "javascript"` + `"X-Plasma-MainScript": "code/main.js"` —
+  make it a *scripted* effect.
+- `"X-KWin-Exclusive-Category": "toplevel-open-close-animation"` — groups it with
+  the other open/close animations so only one runs at a time.
+- `"X-KDE-ConfigModule": "kcm_kwin4_genericscripted"` — generic config UI driven
+  by `config/main.xml` + `ui/config.ui`.
 
 ### Caveats (ported, but please report issues)
 
@@ -165,28 +128,14 @@ removed.
 
 ## glass-warp — spring handling
 
-`glass-warp` is the one effect Niri drives with **spring** curves rather than
-`duration-ms` + `curve`, and with *different* open/close dynamics:
+Niri drives `glass-warp` with springs instead of a duration + curve. Both are
+damped enough not to oscillate, so they're really just ease-outs — and KWin's
+`animate()` has no spring anyway. The port uses a per-direction curve + duration:
 
-| Direction | damping-ratio | stiffness | Behavior |
-|---|---|---|---|
-| open | 2.0 | 5000 | overdamped → snappy, no overshoot |
-| close | 1.0 | 150 | critically damped → gentle, no overshoot |
+- open → `OutQuint`, ~600 ms
+- close → `OutCubic`, ~1150 ms
 
-KWin's scripted `animate()` has no spring (its `SpringMotion` solver, used by the
-built-in Sliding Notifications / Wobbly Windows effects, is C++-only and not
-exposed to JS). But because both springs have damping ratio ≥ 1 they **do not
-oscillate** — they are just ease-outs with direction-specific settling times. So
-the port reproduces them with a **per-direction `QEasingCurve` + duration**,
-applied in `main.js`:
-
-- open → `QEasingCurve.OutQuint`, ~600 ms (the overdamped/stiff settling time)
-- close → `QEasingCurve.OutCubic`, ~1150 ms (the softer critically-damped time)
-
-Both are exposed as `OpenDuration` / `CloseDuration` in the effect's settings.
-The shader treats `uProgress` as already-eased (identity passthrough), so the
-curve lives entirely in `animate()`. (The upstream Niri `open.glsl`/`close.glsl`
-are also missing their closing braces; the port adds them.)
+Tunable as `OpenDuration` / `CloseDuration` in the effect's settings.
 
 ## License
 
