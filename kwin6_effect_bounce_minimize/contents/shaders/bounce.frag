@@ -1,10 +1,5 @@
 // SPDX-License-Identifier: MIT
-//
-// Niri "bounce" window open/close effect, ported to KWin 6 (Plasma 6).
-// GLES / legacy profile. See bounce_core.frag for why the upstream body was
-// replaced: its bounce envelope was applied inverted, and a MapTexture shader
-// cannot draw outside the window rect, so the opening bounce is carried by a
-// vertical squash rather than a translation.
+// Bounce: opening squashes in from the top edge, closing drops away.
 
 #include "colormanagement.glsl"
 
@@ -17,7 +12,6 @@ uniform float uProgress;
 
 varying vec2 texcoord0;
 
-// Classic decaying bounce, 0 -> 1, always <= 1 so the window never overflows.
 float easeOutBounce(float t) {
   const float n1 = 7.5625;
   const float d1 = 2.75;
