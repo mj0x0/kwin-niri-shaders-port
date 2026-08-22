@@ -2,5 +2,5 @@
 dist/
 
 # Local demo encodes (the published demo lives as a GitHub attachment)
-demo.mp4
-demo.webm
+demo*.mp4
+demo*.webm

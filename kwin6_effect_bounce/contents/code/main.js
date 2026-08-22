@@ -25,7 +25,7 @@ class NiriBounceEffect {
     }
 
     loadConfig() {
-        this.duration = animationTime(effect.readConfig("Duration", 500));
+        this.duration = animationTime(effect.readConfig("Duration", 600));
     }
 
     static shouldAnimateWindow(window) {
